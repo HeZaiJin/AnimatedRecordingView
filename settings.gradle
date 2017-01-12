@@ -1,1 +1,1 @@
-include ':app', ':libary'
+include ':app', ':android-animated-recording-view'
