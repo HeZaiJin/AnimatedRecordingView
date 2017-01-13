@@ -13,7 +13,7 @@ import java.io.File;
 public class RecorderHelper {
     private static final String TAG = "RecorderHelper";
     String PATH ;
-    static final int MAX_RECORDER_TIME = 15000;
+    static final int MAX_RECORDER_TIME = 3000;
     private int BASE = 1;
     private int SPACE = 16;// 间隔取样时间
     private MediaRecorder mMediaRecorder;

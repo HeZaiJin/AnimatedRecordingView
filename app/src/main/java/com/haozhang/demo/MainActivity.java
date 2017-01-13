@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements RecorderHelper.on
         Log.d(TAG, "recorderStop() called");
         mRecordingView.loading();
         mHandler.removeCallbacks(mLoading);
-        mHandler.postDelayed(mLoading, 4000);
+        mHandler.postDelayed(mLoading, 1500);
     }
 
     Runnable mLoading = new Runnable() {

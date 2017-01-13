@@ -3,7 +3,6 @@ package com.haozhang.lib;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -15,7 +14,6 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.RadialGradient;
 import android.graphics.RectF;
 import android.graphics.Shader;
-import android.graphics.Xfermode;
 import android.util.AttributeSet;
 
 import java.util.ArrayList;
@@ -28,19 +26,13 @@ public class AnimatedRecordingView extends BaseSurfaceView {
     private static final float ANIM_SCALE_TIME = 400f;
 
     private static final int LOADING_WIDTH = 80;
-    private static final int LOADING_HEIGHT = 10;
-
     private static final int LOGO_LEFT_MARGIN = 60;
 
     private static int LOCATION_LEFT_RIGHT_OFFSET = 100;
     private static final int COLOR_RED = Color.parseColor("#f22b2b");
-    private static final int COLOR_RED_END = Color.parseColor("#f22b2b");
 
     private static final int COLOR_GREEN = Color.parseColor("#2bf3af");
-    private static final int COLOR_GREEN_END = Color.parseColor("#2bf3af");
-
     private static final int COLOR_BLUE = Color.parseColor("#2BAAF3");
-    private static final int COLOR_BLUE_END = Color.parseColor("#2BAAF3");
     private static final int COLOR_LOADING = Color.parseColor("#007AFE");
 
 
@@ -54,13 +46,13 @@ public class AnimatedRecordingView extends BaseSurfaceView {
     Context mContext;
     ArrayList<SiriCursorView> mCursorList;
     float mWidth;
-    static float mGap;
     float mHeight;
+    float mWidthCenter;
+    float mHeightCenter;
+    static float mGap;
     int mState = STATE_SLEEP;
     Paint mPaint;
-    private static final Xfermode xfermode = new PorterDuffXfermode(PorterDuff.Mode.MULTIPLY);
 
-    BlurMaskFilter mMaskFilter;
     Path mPathmBitmapLoadingTop;
     Path mPathmBitmapLoadingBottom;
     ArrayList<Integer> mShuffleList;
@@ -94,6 +86,21 @@ public class AnimatedRecordingView extends BaseSurfaceView {
         init(context);
     }
 
+
+    @Override
+    protected void onRender(Canvas canvas, float volume) {
+        canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG));
+        initCanvas(canvas);
+        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        if (mState == STATE_WORK) {
+            drawWave(canvas, volume);
+        } else if (mState == STATE_SEARCH) {
+            drawSearch(canvas);
+        } else if (mState == STATE_SLEEP) {
+            drawStopLogo(canvas);
+        }
+    }
+
     public boolean isWorking() {
         return mState != STATE_SLEEP;
     }
@@ -101,11 +108,13 @@ public class AnimatedRecordingView extends BaseSurfaceView {
     void initCanvas(Canvas canvas) {
         if (mWidth == 0) {
             mWidth = canvas.getWidth();
-            mGap = mWidth / MAX_GAPS;
+            mWidthCenter = mWidth / 2.0f;
             mHeight = canvas.getHeight();
-            mRadialGradient = new RadialGradient(mWidth / 2f, mHeight / 2f, mWidth / 2f, new int[]{Color.WHITE, COLOR_BLUE, COLOR_LOADING}, null, Shader.TileMode.CLAMP);
-            mRadialGradientScale = new RadialGradient(mWidth / 2f, mHeight / 2f, mWidth / 2f, new int[]{COLOR_LOADING, COLOR_BLUE, Color.WHITE}, null, Shader.TileMode.CLAMP);
-            mBitmapLoadingRectf = new RectF(LOCATION_LEFT_RIGHT_OFFSET, (mHeight / 2f) - 3f, mWidth - LOCATION_LEFT_RIGHT_OFFSET, (mHeight / 2f) + 3f);
+            mHeightCenter = mHeight / 2.0f;
+            mGap = mWidth / MAX_GAPS;
+            mRadialGradient = new RadialGradient(mWidthCenter, mHeightCenter, mWidthCenter, new int[]{Color.WHITE, COLOR_BLUE, COLOR_LOADING}, null, Shader.TileMode.CLAMP);
+            mRadialGradientScale = new RadialGradient(mWidthCenter, mHeightCenter, mWidthCenter, new int[]{COLOR_LOADING, COLOR_BLUE, Color.WHITE}, null, Shader.TileMode.CLAMP);
+            mBitmapLoadingRectf = new RectF(LOCATION_LEFT_RIGHT_OFFSET, mHeightCenter - 3f, mWidth - LOCATION_LEFT_RIGHT_OFFSET, mHeightCenter + 3f);
             float x;
             for (int i = 0; i <= MAX_GAPS; i++) {
                 x = i * mGap;
@@ -124,21 +133,7 @@ public class AnimatedRecordingView extends BaseSurfaceView {
         for (int i = 0; i < 9; i++) {
             Integer index = mShuffleList.get(i);
             SiriCursorView view = mCursorList.get(index);
-            view.drawWave(canvas, mPaint, volume, mHeight / 2, 0, mWidth);
-        }
-    }
-
-    @Override
-    protected void onRender(Canvas canvas, float volume) {
-        canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG));
-        initCanvas(canvas);
-        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        if (mState == STATE_WORK) {
-            drawWave(canvas, volume);
-        } else if (mState == STATE_SEARCH) {
-            drawSearch(canvas);
-        } else if (mState == STATE_SLEEP) {
-            drawStopLogo(canvas);
+            view.drawWave(canvas, mPaint, volume, mHeightCenter, 0, mWidth);
         }
     }
 
@@ -149,14 +144,13 @@ public class AnimatedRecordingView extends BaseSurfaceView {
             mPaint.setAlpha((int) (160 + 95 * i));
             mStopAnimIndex++;
         }
-        float left = mWidth / 2f - mBitmapLogo.getWidth() / 2;
+        float left = mWidthCenter - mBitmapLogo.getWidth() / 2;
         if (isStopLeft) {
             left = LOGO_LEFT_MARGIN;
         }
-        canvas.drawBitmap(mBitmapLogo, left, mHeight / 2f - mBitmapLogo.getHeight() / 2f, mPaint);
+        canvas.drawBitmap(mBitmapLogo, left, mHeightCenter - mBitmapLogo.getHeight() / 2f, mPaint);
         canvas.restore();
     }
-
 
     void drawSearch(Canvas canvas) {
         if (0 == mCurentTime) {
@@ -168,12 +162,12 @@ public class AnimatedRecordingView extends BaseSurfaceView {
                 float input = time_offset / ANIM_SCALE_TIME;
                 canvas.save();
                 float interpolation = 1.00f - getInterpolation(input);
-                float left = mBitmapLoadingRectf.left + (mWidth / 2f - mBitmapLoadingRectf.left - LOADING_WIDTH / 2f) * (1 - interpolation);
-                float right = mWidth / 2 + LOADING_WIDTH / 2f + (mBitmapLoadingRectf.right - mWidth / 2f - LOADING_WIDTH / 2f) * interpolation;
+                float left = mBitmapLoadingRectf.left + (mWidthCenter - mBitmapLoadingRectf.left - LOADING_WIDTH / 2f) * (1 - interpolation);
+                float right = mWidthCenter + LOADING_WIDTH / 2f + (mBitmapLoadingRectf.right - mWidthCenter - LOADING_WIDTH / 2f) * interpolation;
                 float top = mBitmapLoadingRectf.top;
                 float bottom = mBitmapLoadingRectf.bottom;
                 mRectFScale.set(left, top, right, bottom);
-                canvas.translate(-(mWidth / 2 - LOCATION_LEFT_RIGHT_OFFSET) * (1.00f - interpolation), 0);
+                canvas.translate(-(mWidthCenter - LOCATION_LEFT_RIGHT_OFFSET) * (1.00f - interpolation), 0);
                 canvas.drawOval(mRectFScale, mPaint);
                 canvas.restore();
             } else {
@@ -193,7 +187,7 @@ public class AnimatedRecordingView extends BaseSurfaceView {
                 float dx = interpolation * (mWidth - 2 * LOCATION_LEFT_RIGHT_OFFSET);
 
                 if (!leftToRight) {
-                    canvas.rotate(180, mWidth / 2f, mHeight / 2f);
+                    canvas.rotate(180, mWidthCenter, mHeightCenter);
                 }
                 canvas.translate(dx, 0);
                 if (interpolation > 0.5f) {
@@ -201,19 +195,13 @@ public class AnimatedRecordingView extends BaseSurfaceView {
                 } else {
                     mPaint.setAlpha((int) (255 * interpolation * 2));
                 }
-                canvas.drawBitmap(mBitmapLoading, LOCATION_LEFT_RIGHT_OFFSET, mHeight / 2f - mBitmapLoading.getHeight() / 2f, mPaint);
+                canvas.drawBitmap(mBitmapLoading, LOCATION_LEFT_RIGHT_OFFSET, mHeightCenter - mBitmapLoading.getHeight() / 2f, mPaint);
                 canvas.restore();
             }
         }
     }
 
-    public float getInterpolation(float input) {
-        return (float) (Math.cos((input + 1) * Math.PI) / 2.0f) + 0.5f;
-    }
-
-
     void init(Context context) {
-//        setLayerType(View.LAYER_TYPE_SOFTWARE,null);
         mMatrix = new Matrix();
         mContext = context;
         mPaint = new Paint();
@@ -221,36 +209,34 @@ public class AnimatedRecordingView extends BaseSurfaceView {
         mBitmapLogo = BitmapFactory.decodeResource(getResources(), R.drawable.icon_logo);
         mPaint.setDither(true);
         mPaint.setAntiAlias(true);
-//        mPaint.setFilterBitmap(true);
+        mPaint.setStyle(Paint.Style.FILL);
         mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.LIGHTEN));
-        mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
-        mMaskFilter = new BlurMaskFilter(1, BlurMaskFilter.Blur.NORMAL);
         mRectFScale = new RectF();
         mPathmBitmapLoadingTop = new Path();
         mPathmBitmapLoadingBottom = new Path();
 
         mCursorList = new ArrayList<>();
-        SiriCursorView red_base = new SiriCursorView(COLOR_RED, COLOR_RED_END, SiriCursorView.TYPE_CENTER);
+        SiriCursorView red_base = new SiriCursorView(COLOR_RED, SiriCursorView.TYPE_CENTER);
         mCursorList.add(red_base);
-        SiriCursorView blue_base = new SiriCursorView(COLOR_BLUE, COLOR_BLUE_END, SiriCursorView.TYPE_CENTER);
+        SiriCursorView blue_base = new SiriCursorView(COLOR_BLUE, SiriCursorView.TYPE_CENTER);
 
         mCursorList.add(blue_base);
-        SiriCursorView green_base = new SiriCursorView(COLOR_GREEN, COLOR_GREEN_END, SiriCursorView.TYPE_CENTER);
+        SiriCursorView green_base = new SiriCursorView(COLOR_GREEN, SiriCursorView.TYPE_CENTER);
         mCursorList.add(green_base);
 
-        SiriCursorView red_small = new SiriCursorView(COLOR_RED, COLOR_RED_END, SiriCursorView.TYPE_MIDDLE);
+        SiriCursorView red_small = new SiriCursorView(COLOR_RED, SiriCursorView.TYPE_MIDDLE);
         mCursorList.add(red_small);
-        SiriCursorView blue_small = new SiriCursorView(COLOR_BLUE, COLOR_BLUE_END, SiriCursorView.TYPE_MIDDLE);
+        SiriCursorView blue_small = new SiriCursorView(COLOR_BLUE, SiriCursorView.TYPE_MIDDLE);
         mCursorList.add(blue_small);
-        SiriCursorView green_small = new SiriCursorView(COLOR_GREEN, COLOR_GREEN_END, SiriCursorView.TYPE_MIDDLE);
+        SiriCursorView green_small = new SiriCursorView(COLOR_GREEN, SiriCursorView.TYPE_MIDDLE);
         mCursorList.add(green_small);
 
-        SiriCursorView red_small_s = new SiriCursorView(COLOR_RED, COLOR_RED_END, SiriCursorView.TYPE_OUTER);
+        SiriCursorView red_small_s = new SiriCursorView(COLOR_RED, SiriCursorView.TYPE_OUTER);
         mCursorList.add(red_small_s);
-        SiriCursorView blue_small_s = new SiriCursorView(COLOR_BLUE, COLOR_BLUE_END, SiriCursorView.TYPE_OUTER);
+        SiriCursorView blue_small_s = new SiriCursorView(COLOR_BLUE, SiriCursorView.TYPE_OUTER);
         mCursorList.add(blue_small_s);
-        SiriCursorView green_small_s = new SiriCursorView(COLOR_GREEN, COLOR_GREEN_END, SiriCursorView.TYPE_OUTER);
+        SiriCursorView green_small_s = new SiriCursorView(COLOR_GREEN, SiriCursorView.TYPE_OUTER);
         mCursorList.add(green_small_s);
         mShuffleList = new ArrayList<>();
         for (int i = 0; i < 9; i++) {
@@ -278,7 +264,6 @@ public class AnimatedRecordingView extends BaseSurfaceView {
             }
         }
     }
-
 
     @Override
     public void setVolume(float volume) {
@@ -310,17 +295,6 @@ public class AnimatedRecordingView extends BaseSurfaceView {
         reset();
     }
 
-
-    Runnable mDitherRunnable = new Runnable() {
-        @Override
-        public void run() {
-            for (int i = 0; i < 9; i++) {
-                SiriCursorView view = mCursorList.get(i);
-                view.randomLocationAndOffset();
-            }
-        }
-    };
-
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 9; i++) {
@@ -336,11 +310,6 @@ public class AnimatedRecordingView extends BaseSurfaceView {
         mState = STATE_SLEEP;
     }
 
-    public void destory() {
-        mState = -1;
-    }
-
-
     public void stop(boolean isLeft) {
         isStopLeft = isLeft;
         mStopAnimIndex = 0;
@@ -350,6 +319,11 @@ public class AnimatedRecordingView extends BaseSurfaceView {
     public void reset() {
         caculateLocations();
     }
+
+    public static float getInterpolation(float input) {
+        return (float) (Math.cos((input + 1) * Math.PI) / 2.0f) + 0.5f;
+    }
+
 
     static class SiriCursorView {
         public static final int TYPE_CENTER = 1;
@@ -372,20 +346,17 @@ public class AnimatedRecordingView extends BaseSurfaceView {
 
         Path pathTop;
         Path pathBottom;
-        int color_center;
-        int color_end;
+        int color;
 
-        /*震动系数**/
         float offset = 0.3f;
         int type;
         float location;
 
-        public SiriCursorView(int center_color, int end_color, int type) {
+        public SiriCursorView(int center_color, int type) {
             pathTop = new Path();
             pathBottom = new Path();
             this.type = type;
-            this.color_end = end_color;
-            this.color_center = center_color;
+            this.color = center_color;
         }
 
         public void dither() {
@@ -494,13 +465,12 @@ public class AnimatedRecordingView extends BaseSurfaceView {
                 return;
             }
             canvas.save();
-            paint.setColor(color_center);
+            paint.setColor(color);
 
             pathTop.rewind();
             pathTop.moveTo(start_x, center_height);
             pathBottom.rewind();
             pathBottom.moveTo(start_x, center_height);
-            // 确定位置
             canvas.translate(location, 0);
             float x;
             float y_top, y_bottom;

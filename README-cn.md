@@ -1,42 +1,9 @@
 # AnimatedRecordingView
-Android slanted TextView . [中文版](https://github.com/HeZaiJin/AnimatedRecordingView/blob/master/README-cn.md)
+Android slanted TextView .
 ## Preview
-![预览](https://github.com/HeZaiJin/AnimatedRecordingView/blob/master/screen_shot/screenshot.png)
-## Gradle
-```java
-compile 'com.haozhang.libary:android-slanted-textview:1.1'
-```
-## XML Layout
-```java
-<com.haozhang.lib.SlantedTextView
-    android:layout_width="80dp"
-    android:layout_height="80dp"
-    android:gravity="center"
-    app:slantedBackgroundColor="@color/secondary_text"
-    app:slantedLength="40dp"
-    app:slantedMode="left"
-    app:slantedText="IOS"
-    app:slantedTextColor="@color/primary"
-    app:slantedTextSize="16sp"
-    />
-```
-## Java
-```java
-    SlantedTextView stv = (SlantedTextView) findViewById(R.id.test);
+![预览](https://github.com/HeZaiJin/AnimatedRecordingView/blob/master/screen_shot/animated_recording.gif)
 
-    stv.setText("PHP")
-            .setTextColor(Color.WHITE)
-            .setSlantedBackgroundColor(Color.BLACK)
-            .setTextSize(18)
-            .setSlantedLength(50)
-            .setMode(SlantedTextView.MODE_LEFT);
-```
-## Attributes
-![注意](https://github.com/HeZaiJin/SlantedTextView/blob/master/screen_shot/note.png)
-## SlantedMode
-![SlantedMode](https://github.com/HeZaiJin/SlantedTextView/blob/master/screen_shot/slanted_mode.png)
-#License
-```
+
 Copyright 2016 Hand HaoZhang
 
 Licensed under the Apache License, Version 2.0 (the "License");
