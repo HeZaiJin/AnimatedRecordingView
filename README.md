@@ -2,8 +2,13 @@
 Android slanted TextView . [中文版](https://github.com/HeZaiJin/AnimatedRecordingView/blob/master/README-cn.md)
 ## Preview
 ![预览](https://github.com/HeZaiJin/AnimatedRecordingView/blob/master/screen_shot/animated_recording.gif)
+## Gradle
+```java
+compile 'com.haozhang.libary:android-animated-recording-view:1.0'
+```
 
-
+#License
+```
 Copyright 2016 Hand HaoZhang
 
 Licensed under the Apache License, Version 2.0 (the "License");

@@ -86,7 +86,6 @@ public class AnimatedRecordingView extends BaseSurfaceView {
         init(context);
     }
 
-
     @Override
     protected void onRender(Canvas canvas, float volume) {
         canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG));
@@ -335,7 +334,6 @@ public class AnimatedRecordingView extends BaseSurfaceView {
         public static final int MIDDLE_LOCATION_MIN = -180;
         public static final int OUTER_LOCATION_MAX = 440;
         public static final int OUTER_LOCATION_MIN = -220;
-
 
         public static final float CENTER_OFFSET_MAX = 0.95f;
         public static final float CENTER_OFFSET_MIN = 0.40f;
