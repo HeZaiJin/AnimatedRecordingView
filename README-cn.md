@@ -1,5 +1,5 @@
 # AnimatedRecordingView
-Android slanted TextView .
+Android animated recording view .
 ## Preview
 ![预览](https://github.com/HeZaiJin/AnimatedRecordingView/blob/master/screen_shot/animated_recording.gif)
 ## Gradle

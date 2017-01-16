@@ -1,10 +1,32 @@
 # AnimatedRecordingView
-Android slanted TextView . [中文版](https://github.com/HeZaiJin/AnimatedRecordingView/blob/master/README-cn.md)
+Android animated recording view .[中文版](https://github.com/HeZaiJin/AnimatedRecordingView/blob/master/README-cn.md)
 ## Preview
 ![预览](https://github.com/HeZaiJin/AnimatedRecordingView/blob/master/screen_shot/animated_recording.gif)
 ## Gradle
 ```java
 compile 'com.haozhang.libary:android-animated-recording-view:1.0'
+```
+## How to use
+### Use in xml
+```java
+<com.haozhang.lib.AnimatedRecordingView
+    android:id="@+id/recording"
+    android:layout_width="match_parent"
+    android:layout_height="200px"
+    />
+```
+### Use in method
+```java
+    AnimatedRecordingView mRecordingView = (AnimatedRecordingView) findViewById(R.id.recording);
+    // start recording animation
+    mRecordingView.start();
+    // set the mic volume
+    float vol;
+    mRecordingView.setVolume(vol);
+    // start loading animation
+    mRecordingView.loading();
+    // start finished animation
+    mRecordingView.stop();
 ```
 
 #License
